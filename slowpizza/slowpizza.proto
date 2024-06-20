@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option go_package = "./slowpizza";
+
+package slowpizza;
+
+service Delivery {
+  rpc OrderItem(OrderRequest) returns (OrderReply) {}
+  rpc OrderMultipleItems(stream OrderRequest) returns (stream OrderReply) {}
+}
+
+message OrderRequest {
+  string item = 1;
+}
+
+message OrderReply {
+  string message = 1;
+}

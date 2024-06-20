@@ -20,3 +20,7 @@
 # Go workspace file
 go.work
 go.work.sum
+
+# Slowpizza
+slowpizza-client
+slowpizza-server
