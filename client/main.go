@@ -2,10 +2,10 @@ package main
 
 import (
 	"context"
-	"os"
 	"crypto/x509"
 	"flag"
 	"log"
+	"os"
 	"strings"
 	"time"
 
@@ -38,16 +38,17 @@ func (t tokenGRPCAuth) GetRequestMetadata(_ context.Context, _ ...string) (map[s
 }
 
 func (tokenGRPCAuth) RequireTransportSecurity() bool {
-	return true
+	return !*unsafeToken
 }
 
 var (
-	addr      = flag.String("addr", "localhost:50051", "The address to connect to")
-	plaintext = flag.Bool("plaintext", false, "Disable TLS")
-	authToken = flag.String("token", "", "Authorization token")
-	cert      = flag.String("cert", "", "Path to PEM-encoded server certificate (.crt)")
-	headers   arrayFlags
-	items     arrayFlags
+	addr        = flag.String("addr", "localhost:50051", "The address to connect to")
+	plaintext   = flag.Bool("plaintext", false, "Disable TLS")
+	authToken   = flag.String("token", "", "Authorization token")
+	cert        = flag.String("cert", "", "Path to PEM-encoded server certificate (.crt)")
+	unsafeToken = flag.Bool("unsafetoken", false, "Allow sending authorization token over plaintext")
+	headers     arrayFlags
+	items       arrayFlags
 )
 
 func main() {

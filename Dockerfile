@@ -1,6 +1,8 @@
 FROM golang:1.22
 
 WORKDIR /build
+
+# Nicer Docker image build caching
 COPY go.mod .
 COPY go.sum .
 RUN go mod download
