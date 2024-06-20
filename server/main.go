@@ -9,9 +9,9 @@ import (
 	"strconv"
 	"strings"
 
+	pb "github.com/federicotdn/slowpizza/slowpizza"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
-	pb "github.com/federicotdn/slowpizza/slowpizza"
 )
 
 const (
@@ -68,8 +68,6 @@ func (s *server) OrderMultipleItems(client pb.Delivery_OrderMultipleItemsServer)
 			return err
 		}
 	}
-
-	return nil
 }
 
 func main() {
@@ -85,7 +83,7 @@ func main() {
 	}
 	s := grpc.NewServer()
 	pb.RegisterDeliveryServer(s, &server{})
-	log.Printf("server listening at %v", lis.Addr())
+	log.Printf("SlowPizza server listening at %v", lis.Addr())
 
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

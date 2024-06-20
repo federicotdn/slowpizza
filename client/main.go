@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"os"
 	"crypto/x509"
 	"flag"
 	"log"
@@ -44,8 +45,9 @@ var (
 	addr      = flag.String("addr", "localhost:50051", "The address to connect to")
 	plaintext = flag.Bool("plaintext", false, "Disable TLS")
 	authToken = flag.String("token", "", "Authorization token")
-	headers arrayFlags
-	items arrayFlags
+	cert      = flag.String("cert", "", "Path to PEM-encoded server certificate (.crt)")
+	headers   arrayFlags
+	items     arrayFlags
 )
 
 func main() {
@@ -57,19 +59,29 @@ func main() {
 		log.Fatalf("no items to order were specified (use -item)")
 	}
 
-	token := grpc.WithPerRPCCredentials(tokenGRPCAuth(*authToken))
-	pool := x509.NewCertPool()
-	tc := credentials.NewClientTLSFromCert(pool, "")
-
 	var opts []grpc.DialOption
 
 	if *plaintext {
 		opts = []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 	} else {
+		pool := x509.NewCertPool()
+		tc := credentials.NewClientTLSFromCert(pool, "")
+
+		if *cert != "" {
+			data, err := os.ReadFile(*cert)
+			if err != nil {
+				log.Fatalf("unable to read certificate file: %v", err)
+			}
+			if !pool.AppendCertsFromPEM(data) {
+				log.Fatalf("unable to append certificate")
+			}
+		}
+
 		opts = []grpc.DialOption{grpc.WithTransportCredentials(tc)}
 	}
 
 	if *authToken != "" {
+		token := grpc.WithPerRPCCredentials(tokenGRPCAuth(*authToken))
 		opts = append(opts, token)
 	}
 

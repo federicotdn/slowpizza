@@ -15,3 +15,6 @@ build-server:
 
 image:
 	docker build . -t slowpizza:latest
+
+fmt:
+	gofmt -s -w -l .

@@ -5,7 +5,8 @@ COPY go.mod .
 COPY go.sum .
 RUN go mod download
 
-COPY . .
+COPY server server
+COPY slowpizza slowpizza
 
 RUN go build -o slowpizza-server ./server
 
