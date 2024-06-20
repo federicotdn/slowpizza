@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: slowpizza
+spec:
+  selector:
+    matchLabels:
+      app: slowpizza
+  template:
+    metadata:
+      labels:
+        app: slowpizza
+    spec:
+      containers:
+      - name: server
+        image: federicotedin/slowpizza:latest
+        env:
+        - name: SLOWPIZZA_AUTH_TOKEN
+          value: my-auth-token
+        ports:
+        - containerPort: 50051
+          name: grpc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: slowpizza
+spec:
+  selector:
+    app: slowpizza
+  ports:
+  - port: 50051
+    targetPort: grpc

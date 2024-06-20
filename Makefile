@@ -14,7 +14,7 @@ build-server:
 	go build -o slowpizza-server ./server
 
 image:
-	docker build . -t slowpizza:latest
+	docker build . -t slowpizza:develop
 
 fmt:
 	gofmt -s -w -l .
