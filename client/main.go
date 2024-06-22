@@ -91,7 +91,7 @@ func main() {
 		log.Fatalf("grpc connection error: %v", err)
 	}
 	defer conn.Close()
-	c := pb.NewDeliveryClient(conn)
+	c := pb.NewAgentClient(conn)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()

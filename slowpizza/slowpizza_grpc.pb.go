@@ -18,55 +18,55 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// DeliveryClient is the client API for Delivery service.
+// AgentClient is the client API for Agent service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type DeliveryClient interface {
+type AgentClient interface {
 	OrderItem(ctx context.Context, in *OrderRequest, opts ...grpc.CallOption) (*OrderReply, error)
-	OrderMultipleItems(ctx context.Context, opts ...grpc.CallOption) (Delivery_OrderMultipleItemsClient, error)
+	OrderMultipleItems(ctx context.Context, opts ...grpc.CallOption) (Agent_OrderMultipleItemsClient, error)
 }
 
-type deliveryClient struct {
+type agentClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewDeliveryClient(cc grpc.ClientConnInterface) DeliveryClient {
-	return &deliveryClient{cc}
+func NewAgentClient(cc grpc.ClientConnInterface) AgentClient {
+	return &agentClient{cc}
 }
 
-func (c *deliveryClient) OrderItem(ctx context.Context, in *OrderRequest, opts ...grpc.CallOption) (*OrderReply, error) {
+func (c *agentClient) OrderItem(ctx context.Context, in *OrderRequest, opts ...grpc.CallOption) (*OrderReply, error) {
 	out := new(OrderReply)
-	err := c.cc.Invoke(ctx, "/slowpizza.Delivery/OrderItem", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/proto.Agent/OrderItem", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *deliveryClient) OrderMultipleItems(ctx context.Context, opts ...grpc.CallOption) (Delivery_OrderMultipleItemsClient, error) {
-	stream, err := c.cc.NewStream(ctx, &Delivery_ServiceDesc.Streams[0], "/slowpizza.Delivery/OrderMultipleItems", opts...)
+func (c *agentClient) OrderMultipleItems(ctx context.Context, opts ...grpc.CallOption) (Agent_OrderMultipleItemsClient, error) {
+	stream, err := c.cc.NewStream(ctx, &Agent_ServiceDesc.Streams[0], "/proto.Agent/OrderMultipleItems", opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &deliveryOrderMultipleItemsClient{stream}
+	x := &agentOrderMultipleItemsClient{stream}
 	return x, nil
 }
 
-type Delivery_OrderMultipleItemsClient interface {
+type Agent_OrderMultipleItemsClient interface {
 	Send(*OrderRequest) error
 	Recv() (*OrderReply, error)
 	grpc.ClientStream
 }
 
-type deliveryOrderMultipleItemsClient struct {
+type agentOrderMultipleItemsClient struct {
 	grpc.ClientStream
 }
 
-func (x *deliveryOrderMultipleItemsClient) Send(m *OrderRequest) error {
+func (x *agentOrderMultipleItemsClient) Send(m *OrderRequest) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *deliveryOrderMultipleItemsClient) Recv() (*OrderReply, error) {
+func (x *agentOrderMultipleItemsClient) Recv() (*OrderReply, error) {
 	m := new(OrderReply)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -74,75 +74,75 @@ func (x *deliveryOrderMultipleItemsClient) Recv() (*OrderReply, error) {
 	return m, nil
 }
 
-// DeliveryServer is the server API for Delivery service.
-// All implementations must embed UnimplementedDeliveryServer
+// AgentServer is the server API for Agent service.
+// All implementations must embed UnimplementedAgentServer
 // for forward compatibility
-type DeliveryServer interface {
+type AgentServer interface {
 	OrderItem(context.Context, *OrderRequest) (*OrderReply, error)
-	OrderMultipleItems(Delivery_OrderMultipleItemsServer) error
-	mustEmbedUnimplementedDeliveryServer()
+	OrderMultipleItems(Agent_OrderMultipleItemsServer) error
+	mustEmbedUnimplementedAgentServer()
 }
 
-// UnimplementedDeliveryServer must be embedded to have forward compatible implementations.
-type UnimplementedDeliveryServer struct {
+// UnimplementedAgentServer must be embedded to have forward compatible implementations.
+type UnimplementedAgentServer struct {
 }
 
-func (UnimplementedDeliveryServer) OrderItem(context.Context, *OrderRequest) (*OrderReply, error) {
+func (UnimplementedAgentServer) OrderItem(context.Context, *OrderRequest) (*OrderReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method OrderItem not implemented")
 }
-func (UnimplementedDeliveryServer) OrderMultipleItems(Delivery_OrderMultipleItemsServer) error {
+func (UnimplementedAgentServer) OrderMultipleItems(Agent_OrderMultipleItemsServer) error {
 	return status.Errorf(codes.Unimplemented, "method OrderMultipleItems not implemented")
 }
-func (UnimplementedDeliveryServer) mustEmbedUnimplementedDeliveryServer() {}
+func (UnimplementedAgentServer) mustEmbedUnimplementedAgentServer() {}
 
-// UnsafeDeliveryServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to DeliveryServer will
+// UnsafeAgentServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to AgentServer will
 // result in compilation errors.
-type UnsafeDeliveryServer interface {
-	mustEmbedUnimplementedDeliveryServer()
+type UnsafeAgentServer interface {
+	mustEmbedUnimplementedAgentServer()
 }
 
-func RegisterDeliveryServer(s grpc.ServiceRegistrar, srv DeliveryServer) {
-	s.RegisterService(&Delivery_ServiceDesc, srv)
+func RegisterAgentServer(s grpc.ServiceRegistrar, srv AgentServer) {
+	s.RegisterService(&Agent_ServiceDesc, srv)
 }
 
-func _Delivery_OrderItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Agent_OrderItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(OrderRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(DeliveryServer).OrderItem(ctx, in)
+		return srv.(AgentServer).OrderItem(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/slowpizza.Delivery/OrderItem",
+		FullMethod: "/proto.Agent/OrderItem",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DeliveryServer).OrderItem(ctx, req.(*OrderRequest))
+		return srv.(AgentServer).OrderItem(ctx, req.(*OrderRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Delivery_OrderMultipleItems_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(DeliveryServer).OrderMultipleItems(&deliveryOrderMultipleItemsServer{stream})
+func _Agent_OrderMultipleItems_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(AgentServer).OrderMultipleItems(&agentOrderMultipleItemsServer{stream})
 }
 
-type Delivery_OrderMultipleItemsServer interface {
+type Agent_OrderMultipleItemsServer interface {
 	Send(*OrderReply) error
 	Recv() (*OrderRequest, error)
 	grpc.ServerStream
 }
 
-type deliveryOrderMultipleItemsServer struct {
+type agentOrderMultipleItemsServer struct {
 	grpc.ServerStream
 }
 
-func (x *deliveryOrderMultipleItemsServer) Send(m *OrderReply) error {
+func (x *agentOrderMultipleItemsServer) Send(m *OrderReply) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func (x *deliveryOrderMultipleItemsServer) Recv() (*OrderRequest, error) {
+func (x *agentOrderMultipleItemsServer) Recv() (*OrderRequest, error) {
 	m := new(OrderRequest)
 	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -150,22 +150,22 @@ func (x *deliveryOrderMultipleItemsServer) Recv() (*OrderRequest, error) {
 	return m, nil
 }
 
-// Delivery_ServiceDesc is the grpc.ServiceDesc for Delivery service.
+// Agent_ServiceDesc is the grpc.ServiceDesc for Agent service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Delivery_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "slowpizza.Delivery",
-	HandlerType: (*DeliveryServer)(nil),
+var Agent_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "proto.Agent",
+	HandlerType: (*AgentServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "OrderItem",
-			Handler:    _Delivery_OrderItem_Handler,
+			Handler:    _Agent_OrderItem_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "OrderMultipleItems",
-			Handler:       _Delivery_OrderMultipleItems_Handler,
+			Handler:       _Agent_OrderMultipleItems_Handler,
 			ServerStreams: true,
 			ClientStreams: true,
 		},

@@ -2,9 +2,10 @@ syntax = "proto3";
 
 option go_package = "./slowpizza";
 
-package slowpizza;
+package proto;
 
-service Delivery {
+// Agent represents a Pizza delivery agent.
+service Agent {
   rpc OrderItem(OrderRequest) returns (OrderReply) {}
   rpc OrderMultipleItems(stream OrderRequest) returns (stream OrderReply) {}
 }

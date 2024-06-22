@@ -26,7 +26,7 @@ var (
 )
 
 type server struct {
-	pb.UnimplementedDeliveryServer
+	pb.UnimplementedAgentServer
 }
 
 func (s *server) logHeaders(ctx context.Context) {
@@ -62,7 +62,7 @@ func (s *server) OrderItem(ctx context.Context, in *pb.OrderRequest) (*pb.OrderR
 	return s.replyForOrderRequest(in), nil
 }
 
-func (s *server) OrderMultipleItems(client pb.Delivery_OrderMultipleItemsServer) error {
+func (s *server) OrderMultipleItems(client pb.Agent_OrderMultipleItemsServer) error {
 	log.Printf("called: OrderMultipleItems")
 	s.logHeaders(client.Context())
 
@@ -139,7 +139,7 @@ func main() {
 	}
 
 	s := grpc.NewServer(opts...)
-	pb.RegisterDeliveryServer(s, &server{})
+	pb.RegisterAgentServer(s, &server{})
 	log.Printf("SlowPizza server listening at %v", lis.Addr())
 
 	if err := s.Serve(lis); err != nil {
