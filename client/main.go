@@ -2,10 +2,9 @@ package main
 
 import (
 	"context"
-	"crypto/x509"
+	"crypto/tls"
 	"flag"
 	"log"
-	"os"
 	"strings"
 	"time"
 
@@ -65,20 +64,18 @@ func main() {
 	if *plaintext {
 		opts = []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 	} else {
-		pool := x509.NewCertPool()
-		tc := credentials.NewClientTLSFromCert(pool, "")
-
 		if *cert != "" {
-			data, err := os.ReadFile(*cert)
+			creds, err := credentials.NewClientTLSFromFile(*cert, "")
 			if err != nil {
-				log.Fatalf("unable to read certificate file: %v", err)
+				log.Fatalf("could not create client tls: %v", err)
 			}
-			if !pool.AppendCertsFromPEM(data) {
-				log.Fatalf("unable to append certificate")
-			}
-		}
 
-		opts = []grpc.DialOption{grpc.WithTransportCredentials(tc)}
+			opts = []grpc.DialOption{grpc.WithTransportCredentials(creds)}
+		} else {
+			opts = []grpc.DialOption{grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{
+				MinVersion: tls.VersionTLS13,
+			}))}
+		}
 	}
 
 	if *authToken != "" {
