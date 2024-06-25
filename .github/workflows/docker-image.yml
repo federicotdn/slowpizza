@@ -3,6 +3,10 @@ name: Docker Image CI
 on:
   push:
     branches: [ "main" ]
+    paths-ignore:
+      - "**.md"
+      - "client/*"
+      - "etc/*"
   pull_request:
     branches: [ "main" ]
 
