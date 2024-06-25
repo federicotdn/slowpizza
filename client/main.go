@@ -6,7 +6,6 @@ import (
 	"flag"
 	"log"
 	"strings"
-	"time"
 
 	pb "github.com/federicotdn/slowpizza/slowpizza"
 	"google.golang.org/grpc"
@@ -90,7 +89,7 @@ func main() {
 	defer conn.Close()
 	c := pb.NewAgentClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	for _, elem := range headers {
