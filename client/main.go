@@ -1,10 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"crypto/tls"
 	"flag"
+	"fmt"
 	"log"
+	"os"
 	"strings"
 
 	pb "github.com/federicotdn/slowpizza/slowpizza"
@@ -39,22 +42,32 @@ func (tokenGRPCAuth) RequireTransportSecurity() bool {
 	return !*unsafeToken
 }
 
+const itemPrompt = "Enter item name: "
+
 var (
 	addr        = flag.String("addr", "localhost:50051", "The address to connect to")
 	plaintext   = flag.Bool("plaintext", false, "Disable TLS")
 	authToken   = flag.String("token", "", "Authorization token")
 	cert        = flag.String("cert", "", "Path to PEM-encoded server certificate (.crt)")
 	unsafeToken = flag.Bool("unsafetoken", false, "Allow sending authorization token over plaintext")
+	interactive = flag.Bool("i", false, "Use interactive prompt to send items")
 	headers     arrayFlags
 	items       arrayFlags
 )
+
+func promptInput(prompt string) string {
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print(prompt)
+	text, _ := reader.ReadString('\n')
+	return strings.TrimSpace(text)
+}
 
 func main() {
 	flag.Var(&headers, "H", "Extra headers ('Key: Value')")
 	flag.Var(&items, "item", "Item to order")
 	flag.Parse()
 
-	if len(items) == 0 {
+	if len(items) == 0 && !*interactive {
 		log.Fatalf("no items to order were specified (use -item)")
 	}
 
@@ -101,6 +114,11 @@ func main() {
 		ctx = metadata.AppendToOutgoingContext(ctx, key, strings.TrimSpace(value))
 	}
 
+	if *interactive {
+		item := promptInput(itemPrompt)
+		items = append(items, item)
+	}
+
 	if len(items) == 1 {
 		log.Printf("adding item to order: %v", items[0])
 		resp, err := c.OrderItem(ctx, &pb.OrderRequest{Item: items[0]})
@@ -115,7 +133,9 @@ func main() {
 			log.Fatalf("grpc error: %v", err)
 		}
 
-		for _, item := range items {
+		for i := 0; i < len(items); i++ {
+			item := items[i]
+
 			log.Printf("adding item to order: %v", item)
 			err = order.Send(&pb.OrderRequest{Item: item})
 			if err != nil {
@@ -128,6 +148,15 @@ func main() {
 			}
 
 			log.Printf("response: %v", resp.Message)
+
+			if *interactive {
+				newItem := promptInput(itemPrompt)
+				if newItem == "" {
+					break
+				}
+
+				items = append(items, newItem)
+			}
 		}
 	}
 }
