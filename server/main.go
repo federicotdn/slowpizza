@@ -37,11 +37,9 @@ var kaep = keepalive.EnforcementPolicy{
 }
 
 var kasp = keepalive.ServerParameters{
-	MaxConnectionIdle:     15 * time.Second,
-	MaxConnectionAge:      30 * time.Second,
-	MaxConnectionAgeGrace: 5 * time.Second,
-	Time:                  5 * time.Second,
-	Timeout:               1 * time.Second,
+	MaxConnectionIdle: 30 * time.Second,
+	Time:              5 * time.Second,
+	Timeout:           10 * time.Second,
 }
 
 func (s *server) logHeaders(ctx context.Context) {
