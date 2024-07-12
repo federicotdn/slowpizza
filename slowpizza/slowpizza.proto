@@ -12,6 +12,8 @@ service Agent {
 
 message OrderRequest {
   string item = 1;
+  int32 confirm_count = 2;
+  int64 confirm_interval_s = 3;
 }
 
 message OrderReply {

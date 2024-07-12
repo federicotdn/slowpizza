@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	pb "github.com/federicotdn/slowpizza/slowpizza"
 	"google.golang.org/grpc"
@@ -73,9 +74,25 @@ func (s *server) OrderMultipleItems(client pb.Agent_OrderMultipleItemsServer) er
 		}
 
 		log.Printf("received order item: %v", req.Item)
-		err = client.Send(s.replyForOrderRequest(req))
-		if err != nil {
-			return err
+
+		confirmCount := req.ConfirmCount
+		if confirmCount <= 0 {
+			confirmCount = 1
+		}
+
+		log.Printf("confirming %v time(s)", confirmCount)
+		log.Printf("every %v second(s)", req.ConfirmIntervalS)
+
+		var i int32
+		for ; i < confirmCount; i++ {
+			err = client.Send(s.replyForOrderRequest(req))
+			if err != nil {
+				return err
+			}
+
+			if confirmCount > 1 {
+				time.Sleep(time.Duration(req.ConfirmIntervalS) * time.Second)
+			}
 		}
 	}
 }

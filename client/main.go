@@ -45,14 +45,16 @@ func (tokenGRPCAuth) RequireTransportSecurity() bool {
 const itemPrompt = "Enter item name: "
 
 var (
-	addr        = flag.String("addr", "localhost:50051", "The address to connect to")
-	plaintext   = flag.Bool("plaintext", false, "Disable TLS")
-	authToken   = flag.String("token", "", "Authorization token")
-	cert        = flag.String("cert", "", "Path to PEM-encoded server certificate (.crt)")
-	unsafeToken = flag.Bool("unsafetoken", false, "Allow sending authorization token over plaintext")
-	interactive = flag.Bool("i", false, "Use interactive prompt to send items")
-	headers     arrayFlags
-	items       arrayFlags
+	addr            = flag.String("addr", "localhost:50051", "The address to connect to")
+	plaintext       = flag.Bool("plaintext", false, "Disable TLS")
+	authToken       = flag.String("token", "", "Authorization token")
+	cert            = flag.String("cert", "", "Path to PEM-encoded server certificate (.crt)")
+	unsafeToken     = flag.Bool("unsafetoken", false, "Allow sending authorization token over plaintext")
+	interactive     = flag.Bool("i", false, "Use interactive prompt to send items")
+	confirmCount    = flag.Int("confirmcount", 1, "Number of times the server must confirm the order")
+	confirmInterval = flag.Int("confirminterval", 0, "Number of seconds between order confirmations")
+	headers         arrayFlags
+	items           arrayFlags
 )
 
 func promptInput(prompt string) string {
@@ -137,17 +139,23 @@ func main() {
 			item := items[i]
 
 			log.Printf("adding item to order: %v", item)
-			err = order.Send(&pb.OrderRequest{Item: item})
+			err = order.Send(&pb.OrderRequest{
+				Item:             item,
+				ConfirmCount:     int32(*confirmCount),
+				ConfirmIntervalS: int64(*confirmInterval),
+			})
 			if err != nil {
 				log.Fatalf("grpc error: %v", err)
 			}
 
-			resp, err := order.Recv()
-			if err != nil {
-				log.Fatalf("grpc error: %v", err)
-			}
+			for i := 0; i < *confirmCount; i++ {
+				resp, err := order.Recv()
+				if err != nil {
+					log.Fatalf("grpc error: %v", err)
+				}
 
-			log.Printf("response: %v", resp.Message)
+				log.Printf("response %v: %v", i+1, resp.Message)
+			}
 
 			if *interactive {
 				newItem := promptInput(itemPrompt)
